@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      var scribblingCanvas;
+      var drawingContext;
+      function init()
+      {
+        scribblingCanvas = document.getElementById('scribbleCanvas');
+        drawingContext = scribblingCanvas.getContext("2d");
+      }
+    </script>
+  </head>
+  <body onload="init()">
+    <canvas id="scribbleCanvas" width="800" height="600" style="border:1pt solid black">
+    </canvas>
+  </body>
+</html>
