@@ -8,7 +8,36 @@
       {
         scribblingCanvas = document.getElementById('scribbleCanvas');
         drawingContext = scribblingCanvas.getContext("2d");
+        scribblingCanvas.addEventListener("mousedown",touchBegan);
+        
       }
+      function getCoordinatesFromEvent(e) {
+        var x;
+        var y;
+    	if (e.x != undefined && e.y != undefined)
+        {
+          x = e.x;
+          y = e.y;
+        }
+        else // For firefox
+        {
+          x = e.clientX + document.body.scrollLeft +
+              document.documentElement.scrollLeft;
+          y = e.clientY + document.body.scrollTop +
+              document.documentElement.scrollTop;
+        }
+
+        x -= scribblingCanvas.offsetLeft;
+        y -= scribblingCanvas.offsetTop;
+        var Point = {'x':x,'y':y};
+        return Point;
+      }
+
+      function touchBegan(e) {
+        Point =getCoordinatesFromEvent(e);
+        console.log(Point.x+" "+Point.y); 
+      }
+
     </script>
   </head>
   <body onload="init()">
