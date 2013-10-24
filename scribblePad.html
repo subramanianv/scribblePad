@@ -15,7 +15,7 @@
         scribblingCanvas.addEventListener("touchdown",touchBegan);
         scribblingCanvas.addEventListener("touchmove",touchesMoved);
         scribblingCanvas.addEventListener("touchend",touchEnded);
-        
+         
         document.body.addEventListener("mouseup",touchEnded);
         document.body.addEventListener("touchcancel",touchEnded);
       
@@ -67,11 +67,17 @@
              shouldTrackTouch=false;
              console.log('touchEnded');
       }
+      function clearCanvas() {
+         drawingContext.clearRect(0,0,scribblingCanvas.width,scribblingCanvas.height);
+      
+      }
 
     </script>
   </head>
   <body onload="init()">
     <canvas id="scribbleCanvas" width="800" height="600" style="border:1pt solid black">
     </canvas>
+    <br/>
+    <input type="button" value="clear" onclick="clearCanvas()"/>
   </body>
 </html>
