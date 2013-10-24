@@ -4,12 +4,21 @@
     <script>
       var scribblingCanvas;
       var drawingContext;
+      var lastPoint;
+      var shouldTrackTouch;
       function init()
       {
         scribblingCanvas = document.getElementById('scribbleCanvas');
         drawingContext = scribblingCanvas.getContext("2d");
         scribblingCanvas.addEventListener("mousedown",touchBegan);
+        scribblingCanvas.addEventListener("mousemove",touchesMoved);
+        scribblingCanvas.addEventListener("touchdown",touchBegan);
+        scribblingCanvas.addEventListener("touchmove",touchesMoved);
+        scribblingCanvas.addEventListener("touchend",touchEnded);
         
+        document.body.addEventListener("mouseup",touchEnded);
+        document.body.addEventListener("touchcancel",touchEnded);
+      
       }
       function getCoordinatesFromEvent(e) {
         var x;
@@ -34,8 +43,29 @@
       }
 
       function touchBegan(e) {
+        console.log("touchBegan");
         Point =getCoordinatesFromEvent(e);
-        console.log(Point.x+" "+Point.y); 
+        scribblingCanvas.fillStyle="#FF0000";
+        drawingContext.fillRect(Point.x,Point.y,5,5);
+        shouldTrackTouch = true; 
+        lastPoint = Point;
+      }
+      
+      function touchesMoved(e) {
+        if(shouldTrackTouch==true) {
+          
+            touchedPoint=getCoordinatesFromEvent(e);
+            drawingContext.beginPath();
+            drawingContext.moveTo(lastPoint.x,lastPoint.y);
+            drawingContext.lineTo(touchedPoint.x,touchedPoint.y);
+            drawingContext.stroke();
+            lastPoint=touchedPoint;
+            
+        }
+      }
+      function touchEnded(e) {
+             shouldTrackTouch=false;
+             console.log('touchEnded');
       }
 
     </script>
