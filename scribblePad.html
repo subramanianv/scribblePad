@@ -6,6 +6,7 @@
       var drawingContext;
       var lastPoint;
       var shouldTrackTouch;
+      var dataURL;
       function init()
       {
         scribblingCanvas = document.getElementById('scribbleCanvas');
@@ -46,14 +47,15 @@
         console.log("touchBegan");
         Point =getCoordinatesFromEvent(e);
         scribblingCanvas.fillStyle="#FF0000";
-        drawingContext.fillRect(Point.x,Point.y,5,5);
+        drawingContext.fillRect(Point.x,Point.y,1,1);
         shouldTrackTouch = true; 
         lastPoint = Point;
+        
       }
       
       function touchesMoved(e) {
         if(shouldTrackTouch==true) {
-          
+            
             touchedPoint=getCoordinatesFromEvent(e);
             drawingContext.beginPath();
             drawingContext.moveTo(lastPoint.x,lastPoint.y);
@@ -64,13 +66,18 @@
         }
       }
       function touchEnded(e) {
-             shouldTrackTouch=false;
-             console.log('touchEnded');
+             if(shouldTrackTouch==true) {
+               console.log('touchEnded');
+               dataURL=scribblingCanvas.toDataURL();
+               shouldTrackTouch = false;
+            }
       }
       function clearCanvas() {
          drawingContext.clearRect(0,0,scribblingCanvas.width,scribblingCanvas.height);
       
       }
+     
+      
 
     </script>
   </head>
@@ -79,5 +86,6 @@
     </canvas>
     <br/>
     <input type="button" value="clear" onclick="clearCanvas()"/>
+    <input type="button" value="redraw" onclick="redrawImg()"/>
   </body>
 </html>
