@@ -3,12 +3,14 @@
   <head>
     <script src="/socket.io/socket.io.js"></script>
     <script>
+      
       var scribblingCanvas;
       var drawingContext;
       var lastPoint;
       var shouldTrackTouch;
       var dataURL;
       var socket;
+      var penColor;
       function init()
       {
         scribblingCanvas = document.getElementById('scribbleCanvas');
@@ -21,7 +23,7 @@
          
         document.body.addEventListener("mouseup",touchEnded);
         document.body.addEventListener("touchcancel",touchEnded);
-        socket=io.connect('http://192.168.2.23:8080');
+        socket=io.connect('http://localhost:8080');
         socket.on('connect',handleSocketConnection);
       }
       function getCoordinatesFromEvent(e) {
@@ -90,6 +92,9 @@
          imgObj.src = imgData.dataURL;
         });
       }
+      function changePenColor(colorElement) {
+        drawingContext.strokeStyle = colorElement.value;
+      }
     </script>
   </head>
   <body onload="init()">
@@ -98,5 +103,6 @@
     <br/>
     <input type="button" value="clear" onclick="clearCanvas()"/>
     <input type="button" value="redraw" onclick="redrawImg()"/>
+    <input type="color" onchange="changePenColor(this)">
   </body>
 </html>
