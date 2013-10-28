@@ -1,5 +1,9 @@
 var server=require('http').createServer(handler);
 var fs=require('fs');
+var io=require('socket.io').listen(server);
+
+
+
 server.listen(8080);
 console.log('The server is running at http://localhost:'+server.address().port);
 
@@ -8,6 +12,7 @@ function handler(request,response) {
   fs.readFile(__dirname + '/scribblePad.html', function (error,data) {
     if(error) {
    
+      console.log('[ERROR]\n'+error+'\n');
       response.writeHead(500);
       response.end('Error in displaying');
       return;
@@ -20,3 +25,11 @@ function handler(request,response) {
   });
 
 };
+
+io.sockets.on('connection',function(socket) {
+  console.log('connected to a client');
+  socket.on('receiveImgData',function(imgData) {
+
+     socket.broadcast.emit('imgDataFromOtherClients',imgData);
+  });
+});

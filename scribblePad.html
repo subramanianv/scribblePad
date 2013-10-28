@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <script src="/socket.io/socket.io.js"></script>
     <script>
       var scribblingCanvas;
       var drawingContext;
       var lastPoint;
       var shouldTrackTouch;
       var dataURL;
+      var socket;
       function init()
       {
         scribblingCanvas = document.getElementById('scribbleCanvas');
@@ -19,7 +21,8 @@
          
         document.body.addEventListener("mouseup",touchEnded);
         document.body.addEventListener("touchcancel",touchEnded);
-      
+        socket=io.connect('http://192.168.2.23:8080');
+        socket.on('connect',handleSocketConnection);
       }
       function getCoordinatesFromEvent(e) {
         var x;
@@ -62,7 +65,7 @@
             drawingContext.lineTo(touchedPoint.x,touchedPoint.y);
             drawingContext.stroke();
             lastPoint=touchedPoint;
-            
+             
         }
       }
       function touchEnded(e) {
@@ -70,15 +73,23 @@
                console.log('touchEnded');
                dataURL=scribblingCanvas.toDataURL();
                shouldTrackTouch = false;
-            }
+               socket.emit('receiveImgData',{'dataURL':scribblingCanvas.toDataURL()});
+             }
       }
       function clearCanvas() {
          drawingContext.clearRect(0,0,scribblingCanvas.width,scribblingCanvas.height);
       
       }
-     
-      
-
+      function handleSocketConnection() {
+        socket.on('imgDataFromOtherClients',function(imgData) {
+        console.log('new data');
+        var imgObj=new Image();
+        imgObj.onload = function() {
+           drawingContext.drawImage(this,0,0);
+         }
+         imgObj.src = imgData.dataURL;
+        });
+      }
     </script>
   </head>
   <body onload="init()">
