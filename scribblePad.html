@@ -9,6 +9,7 @@
       var shouldTrackTouch;
       var dataURL;
       var socket;
+      var pointsArray;
       function init()
       {
         scribblingCanvas = document.getElementById('scribbleCanvas');
@@ -18,11 +19,15 @@
         scribblingCanvas.addEventListener("touchdown",touchBegan);
         scribblingCanvas.addEventListener("touchmove",touchesMoved);
         scribblingCanvas.addEventListener("touchend",touchEnded);
-         
+        strokeArray=new Array();
         document.body.addEventListener("mouseup",touchEnded);
         document.body.addEventListener("touchcancel",touchEnded);
         socket=io.connect('http://192.168.2.23:8080');
         socket.on('connect',handleSocketConnection);
+      }
+      function Stroke(color,Point) {
+        this.color = color;
+        this.Point = Point;
       }
       function getCoordinatesFromEvent(e) {
         var x;
@@ -53,13 +58,15 @@
         drawingContext.fillRect(Point.x,Point.y,1,1);
         shouldTrackTouch = true; 
         lastPoint = Point;
-        
+        strokeArray.push(new Stroke('DDDD',lastPoint)); 
       }
+ 
       
       function touchesMoved(e) {
         if(shouldTrackTouch==true) {
-            
+             
             touchedPoint=getCoordinatesFromEvent(e);
+            strokeArray.push(new Stroke('DDDD',touchedPoint));
             drawingContext.beginPath();
             drawingContext.moveTo(lastPoint.x,lastPoint.y);
             drawingContext.lineTo(touchedPoint.x,touchedPoint.y);
@@ -73,7 +80,8 @@
                console.log('touchEnded');
                dataURL=scribblingCanvas.toDataURL();
                shouldTrackTouch = false;
-               socket.emit('receiveImgData',{'dataURL':scribblingCanvas.toDataURL()});
+               socket.emit('receiveImgData',strokeArray);
+               strokeArray.length=0;
              }
       }
       function clearCanvas() {
@@ -82,14 +90,18 @@
       }
       function handleSocketConnection() {
         socket.on('imgDataFromOtherClients',function(imgData) {
-        console.log('new data');
-        var imgObj=new Image();
-        imgObj.onload = function() {
-           drawingContext.drawImage(this,0,0);
-         }
-         imgObj.src = imgData.dataURL;
+          if(imgData.length > 0 ) {
+            drawingContext.beginPath();
+            var Obj = imgData[0];
+            drawingContext.moveTo(Obj.Point.x,Obj.Point.y);
+            for(var i=1;i<imgData.length;i++) { 
+              drawingContext.lineTo(imgData[i].Point.x,imgData[i].Point.y);
+            }
+            drawingContext.stroke();
+          }
+
         });
-      }
+       }
     </script>
   </head>
   <body onload="init()">
