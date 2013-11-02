@@ -6,7 +6,6 @@ var io=require('socket.io').listen(server);
 
 server.listen(8080);
 console.log('The server is running at http://localhost:'+server.address().port);
-console.log(server.address());
 function handler(request,response) {
   console.log('New client request');
   fs.readFile(__dirname + '/scribblePad.html', function (error,data) {
