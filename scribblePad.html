@@ -91,7 +91,12 @@
       
       }
       function changeStrokeSize(uiElement) {
-        strokeSize = uiElement.value;
+        if(isNaN(uiElement.value)) { 
+          strokeSize = 1 ;
+          alert('Enter a number from 1 to 10');
+        }
+        else strokeSize = uiElement.value;
+        
       }
       function handleSocketConnection() {
         socket.on('imgDataFromOtherClients',function(data) {
@@ -113,9 +118,6 @@
           drawingContext.strokeStyle = colorPicker.value;
 
         });
-       }
-       function changeColor(colorPicker) {
-         drawingContext.strokeStyle=colorPicker.value;
        }
     </script>
   </head>
