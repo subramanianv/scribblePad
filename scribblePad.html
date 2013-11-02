@@ -9,7 +9,7 @@
       var shouldTrackTouch;
       var dataURL;
       var socket;
-      var pointsArray;
+      var strokeArray;
       function init()
       {
         scribblingCanvas = document.getElementById('scribbleCanvas');
@@ -58,7 +58,7 @@
         drawingContext.fillRect(Point.x,Point.y,1,1);
         shouldTrackTouch = true; 
         lastPoint = Point;
-        strokeArray.push(new Stroke('DDDD',lastPoint)); 
+        strokeArray.push(new Stroke(drawingContext.strokeStyle,lastPoint)); 
       }
  
       
@@ -66,7 +66,7 @@
         if(shouldTrackTouch==true) {
              
             touchedPoint=getCoordinatesFromEvent(e);
-            strokeArray.push(new Stroke('DDDD',touchedPoint));
+            strokeArray.push(new Stroke(drawingContext.stokeStyle,touchedPoint));
             drawingContext.beginPath();
             drawingContext.moveTo(lastPoint.x,lastPoint.y);
             drawingContext.lineTo(touchedPoint.x,touchedPoint.y);
@@ -78,7 +78,6 @@
       function touchEnded(e) {
              if(shouldTrackTouch==true) {
                console.log('touchEnded');
-               dataURL=scribblingCanvas.toDataURL();
                shouldTrackTouch = false;
                socket.emit('receiveImgData',strokeArray);
                strokeArray.length=0;
@@ -94,13 +93,20 @@
             drawingContext.beginPath();
             var Obj = imgData[0];
             drawingContext.moveTo(Obj.Point.x,Obj.Point.y);
-            for(var i=1;i<imgData.length;i++) { 
+            for(var i=1;i<imgData.length;i++) {
+              console.log(imgData[i].color);
+              drawingContext.strokeStyle =imgData[i].color;
               drawingContext.lineTo(imgData[i].Point.x,imgData[i].Point.y);
             }
             drawingContext.stroke();
+            
           }
+          changeColor(document.getElementById('cPicker'));
 
         });
+       }
+       function changeColor(colorPicker) {
+         drawingContext.strokeStyle=colorPicker.value;
        }
     </script>
   </head>
@@ -110,5 +116,6 @@
     <br/>
     <input type="button" value="clear" onclick="clearCanvas()"/>
     <input type="button" value="redraw" onclick="redrawImg()"/>
+    <input type="color" name="cPicker" id="cPicker" onchange="changeColor(this)"/>
   </body>
 </html>
