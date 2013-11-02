@@ -10,6 +10,7 @@
       var dataURL;
       var socket;
       var strokeArray;
+      var strokeSize ;
       function init()
       {
         scribblingCanvas = document.getElementById('scribbleCanvas');
@@ -19,10 +20,11 @@
         scribblingCanvas.addEventListener("touchdown",touchBegan);
         scribblingCanvas.addEventListener("touchmove",touchesMoved);
         scribblingCanvas.addEventListener("touchend",touchEnded);
+        strokeSize = 1;
         strokeArray=new Array();
         document.body.addEventListener("mouseup",touchEnded);
         document.body.addEventListener("touchcancel",touchEnded);
-        socket=io.connect('http://192.168.2.23:8080');
+        socket=io.connect('http://localhost:8080');
         socket.on('connect',handleSocketConnection);
       }
       function Stroke(color,Point) {
@@ -66,7 +68,8 @@
         if(shouldTrackTouch==true) {
              
             touchedPoint=getCoordinatesFromEvent(e);
-            strokeArray.push(new Stroke(drawingContext.stokeStyle,touchedPoint));
+            strokeArray.push(new Stroke('DDDD',touchedPoint));
+            drawingContext.lineWidth = strokeSize;
             drawingContext.beginPath();
             drawingContext.moveTo(lastPoint.x,lastPoint.y);
             drawingContext.lineTo(touchedPoint.x,touchedPoint.y);
@@ -79,7 +82,7 @@
              if(shouldTrackTouch==true) {
                console.log('touchEnded');
                shouldTrackTouch = false;
-               socket.emit('receiveImgData',strokeArray);
+               socket.emit('receiveImgData',{imgData:strokeArray,penSize:strokeSize});
                strokeArray.length=0;
              }
       }
@@ -87,8 +90,14 @@
          drawingContext.clearRect(0,0,scribblingCanvas.width,scribblingCanvas.height);
       
       }
+      function changeStrokeSize(uiElement) {
+        strokeSize = uiElement.value;
+      }
       function handleSocketConnection() {
-        socket.on('imgDataFromOtherClients',function(imgData) {
+        socket.on('imgDataFromOtherClients',function(data) {
+          imgData = data['imgData'];
+          penSize = data['penSize'];
+          drawingContext.lineWidth = penSize;
           if(imgData.length > 0 ) {
             drawingContext.beginPath();
             var Obj = imgData[0];
@@ -101,7 +110,7 @@
             drawingContext.stroke();
             
           }
-          changeColor(document.getElementById('cPicker'));
+          drawingContext.strokeStyle = colorPicker.value;
 
         });
        }
@@ -114,8 +123,7 @@
     <canvas id="scribbleCanvas" width="800" height="600" style="border:1pt solid black">
     </canvas>
     <br/>
-    <input type="button" value="clear" onclick="clearCanvas()"/>
-    <input type="button" value="redraw" onclick="redrawImg()"/>
-    <input type="color" name="cPicker" id="cPicker" onchange="changeColor(this)"/>
+    <label>Stroke Size:</label>
+    <input type="number" name="strokeSize" min="1" max="10" onchange="changeStrokeSize(this)">
   </body>
 </html>
