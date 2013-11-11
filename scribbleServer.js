@@ -23,7 +23,7 @@ function handler(request,response) {
 io.sockets.on('connection',function(socket) {
   console.log('connected to a client');
   socket.on('receiveImgData',function(imgData) {
-       //  console.log(imgData);
+     console.log(imgData);
      socket.broadcast.emit('imgDataFromOtherClients',imgData);
   });
 });
